@@ -1,0 +1,111 @@
+Step 1: Set Up a Shared Folder on Windows
+1) Create a Folder on Windows that you want to share.
+   For example, create a folder named SharedFolder
+
+2) Right-click on the folder, and select Properties.
+
+3) Go to the Sharing tab and click on Advanced Sharing.
+
+4) In the Advanced Sharing window:
+
+   - Check Share this folder.
+   - You can give the folder a name (e.g., SharedFolder) to make it easier to access from Ubuntu.
+   - Click Permissions, and ensure that Full Control is enabled for everyone (or for specific users).
+5) Click OK to apply the changes.
+6) Note the Network Path for the folder (Network path is usually like that \\YourWindowsPC\SharedFolder we will use it in this way YOUR_IP_ADDRESS/SharedFolder).
+
+Step 2: Install Samba on Ubuntu
+
+$ sudo apt install samba smbclient cifs-utils
+
+Step 3: Access Windows Shared Folder from Ubuntu
+Now, you'll mount the Windows shared folder on Ubuntu so you can access it as if it were a local directory.
+
+Create a mount point for the shared folder on Ubuntu: 
+$ sudo mkdir /mnt/shared_folder
+
+network path: //192.192.192.192/SharedFolder
+mount point for the shared folder : /mnt/shared_folder
+your username: user (use "echo %USERNAME%" in cmd if you don't know it)
+your password: pass1234 (This password is either the local Windows account password or Microsoft account password (if you're using a Microsoft account))
+
+
+Mount the shared folder: 
+$ sudo mount -t cifs //192.192.192.192/SharedFolder /mnt/shared_folder -o username=user,password=pass1234,uid=$(id -u),gid=$(id -g),file_mode=0777,dir_mode=0777
+
+
+
+If you want the shared folder to be mounted automatically on system boot:
+
+type this commande to extract only the uid and gid from the /etc/passwd file for your username
+change ubuntu with the name of your linux machine
+
+$ awk -F: '/ubuntu/ {print $3, $4}' /etc/passwd
+output : 1000 1000
+
+Then, open this file
+
+$sudo nano /etc/fstab
+
+And add this line to the end of the file
+Change it with the information according to you
+//192.168.100.1/SharedFolderForVMs  /mnt/shared_folder cifs username=user,password=pass1234,uid=1000,gid=1000,file_mode=0777,dir_mode=0777 0 0
+
+
+These steps will allow you to share a folder from your Windows machine and access it from Ubuntu, both manually and automatically on boot.
+
+
+Step 1: Set Up a Shared Folder on Windows
+Create a folder
+Access Folder Properties
+- Right-click the folder and select Properties.
+- Navigate to the Sharing tab and click on Advanced Sharing.
+- Check the box for Share this folder.
+- Click Permissions, and ensure Full Control is enabled for "Everyone" (or for specific users you want to grant access to).
+- Click OK to save the settings.
+- Note the Network Path:
+
+Take note of the network path, which will be something like \\YourWindowsPC\SharedFolder.
+We will use it in this way 192.168.100.1/SharedFolder as the network path.(with 192.168.100.1 is the ip @ of the Windows machine)
+
+Step 2: Install Samba on Ubuntu
+
+$ sudo apt install samba smbclient cifs-utils
+
+Step 3: Mount the Shared Folder on Ubuntu
+
+First, create a directory on Ubuntu where the shared folder will be mounted:
+$ sudo mkdir /mnt/shared_folder
+
+Use the following command to mount the shared folder from Windows to Ubuntu
+
+network path: //192.192.192.192/SharedFolder
+mount point for the shared folder : /mnt/shared_folder
+your username: user (use "echo %USERNAME%" in cmd if you don't know it)
+your password: pass1234 (This password is either the local Windows account password or Microsoft account password (if you're using a Microsoft account))
+
+$ sudo mount -t cifs //192.168.100.1/SharedFolder /mnt/shared_folder -o username=user,password=pass1234,uid=$(id -u),gid=$(id -g),file_mode=0777,dir_mode=0777
+
+And try now to access to /mnt/shared_forder and see if you can see the folders/files shared, and add and delete this, and check if all this operation appear on the folder in the Windows machine
+
+Step 4: Auto-Mount the Shared Folder on Boot (Optional)
+To have the shared folder automatically mount when your system starts:
+
+Run the following command to extract the uid and gid for your user:
+
+$ awk -F: '/ubuntu/ {print $3, $4}' /etc/passwd
+Replace ubuntu with your actual username, and note the output (e.g., 1000 1000).
+
+Edit the fstab File:
+
+$ sudo nano /etc/fstab
+
+At the end of the file, add the following line to automatically mount the shared folder on boot:
+
+//192.168.100.1/SharedFolder /mnt/shared_folder cifs username=user,password=pass1234,uid=1000,gid=1000,file_mode=0777,dir_mode=0777 0 0
+Make sure to replace the username, password, uid, and gid with your own details.
+
+Save and Exit
+
+And try now reboot your machine and access to /mnt/shared_forder and see if you can see the folders/files shared, and add and delete this, and check if all this operation appear on the folder in the Windows machine
+
