@@ -1,0 +1,4 @@
+git add yourfile.txt
+git add .
+git commit -m "Add yourfile.txt"
+git push -u origin main
